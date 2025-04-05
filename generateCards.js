@@ -1,4 +1,4 @@
-import { createCanvas, registerFont } from "canvas";
+import { createCanvas, registerFont, loadImage } from "canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 const babyWords = [
   "Abraço",
   "Amor",
+  "Bebê",
   "Babador",
   "Banheira",
   "Berço",
@@ -17,45 +18,45 @@ const babyWords = [
   "Body",
   "Bocejo",
   "Brinquedo",
-  "Caminhar",
+  "Banho",
+  "Andar",
   "Carrinho",
   "Cobertor",
   "Colo",
-  "Conchinha",
-  "Denguinho",
+  "Cueiro",
+  "Chupeta",
   "Dentinho",
   "Docinho",
-  "Escovinha",
+  "Escova",
   "Família",
   "Fraldinha",
   "Fralda",
-  "Fofinho",
-  "Gatinho",
-  "Gorro",
+  "Fome",
+  "Engatinhar",
+  "Toquinha",
   "Lencinho",
-  "Luzinha",
   "Macacão",
   "Mamadeira",
   "Mamãe",
   "Mãozinha",
+  "Maternidade",
   "Meinha",
   "Mijão",
+  "Mobile",
+  "Mosqueteiro",
   "Naninha",
-  "Nana",
+  "Neném",
   "Olhinho",
-  "Paciência",
   "Papai",
-  "Patinho",
   "Pezinho",
   "Pijama",
-  "Pomadinha",
-  "Recém-nascido",
-  "Risadinha",
+  "Pomada",
+  "Risada",
   "Ronquinho",
-  "Soneca",
-  "Soninho",
-  "Sorrisinho",
-  "Tapetinho",
+  "Trocador",
+  "Cochilo",
+  "Sono",
+  "Sorriso",
   "Toalhinha",
 ];
 
@@ -69,11 +70,9 @@ function shuffle(array) {
 
 const lines = 4;
 const columns = 3;
-
 const width = 600;
 const height = 800;
 const margin = 40;
-
 const cellWidth = (width - margin * 2) / columns;
 const cellHeight = (height - margin * 2 - 100) / lines;
 
@@ -91,11 +90,19 @@ function drawBackground(ctx, width, height) {
   }
 }
 
-function generateImage(words, index, title) {
+async function generateImage(words, index, title) {
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
 
   drawBackground(ctx, width, height);
+
+  const leftImage = await loadImage(
+    path.join(__dirname, "assets", "image-left.png")
+  );
+
+  const rightImage = await loadImage(
+    path.join(__dirname, "assets", "image-right.png")
+  );
 
   ctx.fillStyle = "#F4A7B9";
   ctx.font = "bold 48px Poppins";
@@ -104,11 +111,31 @@ function generateImage(words, index, title) {
 
   ctx.fillRect(width / 2 - 150, 75, 300, 5);
 
+  const titleWidth = ctx.measureText(title).width;
+  const imageSize = 80;
+  const spacing = 15;
+  const imageY = 60 - imageSize / 2;
+
+  ctx.drawImage(
+    leftImage,
+    width / 2 - titleWidth / 2 - imageSize - spacing,
+    imageY,
+    imageSize,
+    imageSize
+  );
+
+  ctx.drawImage(
+    rightImage,
+    width / 2 + titleWidth / 2 + spacing,
+    imageY,
+    imageSize,
+    imageSize
+  );
+
   ctx.font = "22px Poppins";
   ctx.fillStyle = "#7D5A5A";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-
   ctx.lineWidth = 2;
 
   words.forEach((word, i) => {
@@ -122,12 +149,10 @@ function generateImage(words, index, title) {
     const centerY = cellY + cellHeight / 2;
 
     ctx.fillStyle = row % 2 === 0 ? "#FFE8F0" : "#FFFDF9";
-
     ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
     ctx.shadowBlur = 8;
     ctx.shadowOffsetX = 3;
     ctx.shadowOffsetY = 3;
-
     ctx.fillRect(cellX, cellY, cellWidth, cellHeight);
 
     ctx.strokeStyle = "#D0C3E6";
